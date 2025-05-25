@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+    body {
+        font-family: "Montserrat", sans-serif;
+    }
+
+    .main-content {
+        margin-top: 5rem;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 3rem;
+        font-family: "Montserrat", sans-serif;
+        padding: 0 3rem;
+    }
+
+    .upload-container {
+        flex: 1;
+        max-width: 50%;
+    }
+
+    .info-container {
+        flex: 1;
+        max-width: 500px;
+    }
+
+    .drop-zone {
+        height: 400px;
+        width: 100%;
+        padding: 3rem;
+        border: 2px dashed #F28C28;
+        border-radius: 10px;
+        background-color: #fdf7f1;
+        text-align: center;
+        cursor: pointer;
+        color: #333;
+        transition: background-color 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .drop-zone.dragover {
+        background-color: #ffe3c3;
+    }
+
+    .drop-zone input {
+        display: none;
+    }
+
+    .info-section {
+        border: 1px solid #ddd;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        background-color: #fff;
+        margin-bottom: 1.5rem;
+        font-family: "Montserrat", sans-serif;
+
+    }
+
+    .tall-card {
+        min-height: 200px;
+    }
+
+    .info-container h3 {
+        color: #F28C28;
+        font-weight: 600;
+    }
+
+    .info-container ul {
+        padding-left: 1rem;
+    }
+
+    .info-container a {
+        color: #F28C28;
+        text-decoration: none;
+    }
+
+    .info-container a:hover {
+        text-decoration: underline;
+    }
+
+    .upload-note {
+        margin-top: 1rem;
+        font-size: 0.95rem;
+        color: #555;
+        padding: 0.5rem 1rem;
+        background-color: #f8f8f8;
+        border-left: 4px solid #F28C28;
+        border-radius: 5px;
+        font-family: "Montserrat", sans-serif;
+
+    }
+
+    .navbar {
+      font-family: "Montserrat", sans-serif;
+
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg" style="background-color: #F28C28;">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center text-white" href="/">
+            <img src="{{ url_for('static', filename='resin_logo.png') }}" alt="Favicon" width="30" height="30" class="me-2">
+            Resin
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-3">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="/upload">Upload</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="/about">About Resin</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Section -->
+<div class="main-content">
+    <!-- Upload -->
+    <div class="upload-container">
+        <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm">
+            <label class="drop-zone" id="dropZone">
+                <span>Drag and drop your PDF here or click to select</span>
+                <input type="file" name="pdf_file" accept="application/pdf" required>
+            </label>
+        </form>
+        <div class="upload-note">
+          Your resume is processed securely and never stored permanently. We value your privacy.
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="info-container">
+        <div class="info-section tall-card">
+            <h3>What is Resin?</h3>
+            <p>Resin uses a custom-built NLP model to analyze and enhance your resume, ensuring it's optimized for recruiters and ATS systems.</p>
+        </div>
+
+        <div class="info-section tall-card">
+            <h3>Additional Resources</h3>
+            <ul>
+              <ul>
+                <li><a href="https://www.youtube.com/watch?v=R3abknwWX7k&ab_channel=ALifeAfterLayoff" target="_blank" rel="noopener noreferrer">Formatting Your Resume</a></li>
+                <li><a href="https://www.youtube.com/watch?v=pjqi_M3SPwY&ab_channel=JeffSu" target="_blank" rel="noopener noreferrer">Top Resume Mistakes to Avoid</a></li>
+                <li><a href="https://www.youtube.com/watch?v=SVAIXGhwYt8&ab_channel=EnglishwithEmma%C2%B7engVid" target="_blank" rel="noopener noreferrer">Stand out with Power Verbs</a></li>
+            </ul>            
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = dropZone.querySelector('input');
+  const form = document.getElementById('uploadForm');
+
+  dropZone.addEventListener('click', () => {
+      fileInput.click();
+  });
+
+  dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+  });
+
+  dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+
+      if (e.dataTransfer.files.length) {
+          fileInput.files = e.dataTransfer.files;
+          form.submit(); 
+      }
+  });
+
+  fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) {
+          form.submit(); 
+      }
+  });
+</script>
+{% endblock %}

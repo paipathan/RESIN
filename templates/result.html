@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+    body {
+        font-family: "Montserrat", sans-serif;
+    }
+
+    .score-section {
+        margin-top: 5rem;
+        padding: 0 2rem;
+    }
+
+    .score-card {
+        border: 2px solid #F28C28;
+        border-radius: 12px;
+        padding: 1rem;
+        background-color: #fdfdfd;
+        width: 100%;
+    }
+
+    .score-card h5 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .radial-group {
+        display: flex;
+        justify-content: space-around;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .radial-progress-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .radial-progress {
+        --size: 100px;
+        --thickness: 10px;
+        --value: 75;
+        width: var(--size);
+        height: var(--size);
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: conic-gradient(#F28C28 calc(var(--value) * 1%), #eee 0%);
+        position: relative;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .radial-progress:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .radial-progress::before {
+        content: '';
+        width: calc(var(--size) - var(--thickness) * 2);
+        height: calc(var(--size) - var(--thickness) * 2);
+        border-radius: 50%;
+        background-color: #fff;
+        position: absolute;
+    }
+
+    .radial-progress span {
+        z-index: 1;
+        font-size: 0.75rem;
+        max-width: 60px;
+        padding: 0 0.25rem;
+    }
+
+    .radial-info {
+        font-size: 0.65rem;
+        color: #333;
+        margin-top: 0.5rem;
+        text-align: center;
+        max-width: 120px;
+    }
+
+    .analysis-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pdf-container embed {
+        width: 100%;
+        height: 100%;
+    }
+
+    .feedback-section {
+        padding-right: 1rem;
+        overflow-y: auto;
+    }
+
+    .feedback-section h5 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .feedback-section ul {
+        margin-left: 1rem;
+    }
+
+    .sentence-block {
+        margin-bottom: 1rem;
+    }
+
+    .sentence-block strong {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .left-panel {
+        flex: 1;
+        min-width: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .pdf-container {
+        flex: 1;
+        min-width: 350px;
+        background-color: #f5f5f5;
+        border: 2px solid #F28C28;
+        border-radius: 12px;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .pdf-page {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 4px;
+    }
+
+    .main-layout {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 2rem;
+        padding: 0 2rem;
+    }
+</style>
+{% endblock %}
+
+{% set total_sentences = scanned_result|length %}
+{% set count_metrics = 0 %}
+{% set count_actionable = 0 %}
+{% set count_domain = 0 %}
+
+{% for item in scanned_result %}
+    {% set tags = item[1:] %}
+    {% if "Metrics" in tags %}{% set count_metrics = count_metrics + 1 %}{% endif %}
+    {% if "Actionable" in tags %}{% set count_actionable = count_actionable + 1 %}{% endif %}
+    {% if "Domain-Specific" in tags %}{% set count_domain = count_domain + 1 %}{% endif %}
+{% endfor %}
+
+{% set percent_metrics = (count_metrics / total_sentences * 100) | round(0, 'ceil') %}
+{% set percent_actionable = (count_actionable / total_sentences * 100) | round(0, 'ceil') %}
+{% set percent_domain = (count_domain / total_sentences * 100) | round(0, 'ceil') %}
+
+{% block body %}
+
+<nav class="navbar navbar-expand-lg" style="background-color: #F28C28;">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center text-white" href="/">
+            <img src="{{ url_for('static', filename='resin_logo.png') }}" alt="Favicon" width="30" height="30" class="me-2">
+            Resin
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-3">
+                <li class="nav-item"><a class="nav-link text-white" href="/upload">Upload</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="/about">About Resin</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="score-section">
+    <div class="main-layout">
+        <div class="left-panel">
+            <div class="score-card">
+                <h5>General Analysis</h5>
+                <div class="radial-group">
+                    <div class="radial-progress-wrapper">
+                        <div class="radial-progress" style="--value: {{ percent_metrics }};">
+                            <span>Metrics</span>
+                        </div>
+                        <div class="radial-info">Measures how often you quantify your impact (e.g., numbers, percentages).</div>
+                    </div>
+                    <div class="radial-progress-wrapper">
+                        <div class="radial-progress" style="--value: {{ percent_actionable }};">
+                            <span>Actionable</span>
+                        </div>
+                        <div class="radial-info">Checks if you use strong action verbs to describe what you accomplished.</div>
+                    </div>
+                    <div class="radial-progress-wrapper">
+                        <div class="radial-progress" style="--value: {{ percent_domain }};">
+                            <span>Specificity</span>
+                        </div>
+                        <div class="radial-info">Evaluates whether your lines are detailed or vague/general.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="score-card feedback-section" id="feedback-section">
+                <h5>Detailed Analysis</h5>
+                <div id="feedback-pages"></div>
+                <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+                    <button class="btn btn-outline-secondary" onclick="prevPage()">Back</button>
+                    <button class="btn btn-outline-secondary" onclick="nextPage()">Next</button>
+                </div>
+                <script id="feedback-data" type="application/json">
+                    {{ scanned_result|tojson }}
+                </script>
+            </div>
+        </div>
+
+        <div class="score-card pdf-container">
+            {% for i in range(1, num_pages + 1) %}
+                <img src="{{ url_for('serve_temp_file', filename='page_' + i|string + '.png') }}" alt="Page {{ i }}" class="pdf-page">
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const rawData = JSON.parse(document.getElementById('feedback-data').textContent);
+    const pageSize = 5;
+    let currentPage = 0;
+    let pages = [];
+
+    function isWeak(item) {
+        let tags = item.slice(1);
+        let missing = 0;
+        if (!tags.includes("Metrics")) missing++;
+        if (!tags.includes("Actionable")) missing++;
+        if (!tags.includes("Domain-Specific")) missing++;
+        return missing >= 2;
+    }
+
+    function buildPages() {
+        const filtered = rawData.filter(isWeak);
+        pages = [];
+        for (let i = 0; i < filtered.length; i += pageSize) {
+            pages.push(filtered.slice(i, i + pageSize));
+        }
+    }
+
+    function renderPage() {
+        const container = document.getElementById('feedback-pages');
+        container.innerHTML = '';
+        const page = pages[currentPage];
+        if (!page || page.length === 0) {
+            container.innerHTML = '<p>No feedback available.</p>';
+            return;
+        }
+
+        for (const item of page) {
+            const [sentence, ...tags] = item;
+            const div = document.createElement('div');
+            div.className = 'sentence-block';
+
+            const strong = document.createElement('strong');
+            strong.textContent = sentence;
+            div.appendChild(strong);
+
+            const ul = document.createElement('ul');
+
+            if (!tags.includes("Metrics")) {
+                const li = document.createElement('li');
+                li.textContent = "Missing specific metrics or numbers. Ground your achievements in fact.";
+                ul.appendChild(li);
+            }
+            if (!tags.includes("Actionable")) {
+                const li = document.createElement('li');
+                li.textContent = "Lacks strong verbs. Consider using words like 'designed', 'led', or 'developed'.";
+                ul.appendChild(li);
+            }
+            if (!tags.includes("Domain-Specific")) {
+                const li = document.createElement('li');
+                li.textContent = "Could be more specific. Reference the tools, systems, or context involved.";
+                ul.appendChild(li);
+            }
+
+            div.appendChild(ul);
+            container.appendChild(div);
+        }
+    }
+
+    function nextPage() {
+        if (currentPage < pages.length - 1) {
+            currentPage++;
+            renderPage();
+        }
+    }
+
+    function prevPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            renderPage();
+        }
+    }
+
+    buildPages();
+    renderPage();
+</script>
+
+{% endblock %}

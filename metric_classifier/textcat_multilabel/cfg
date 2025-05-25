@@ -1,0 +1,7 @@
+{
+  "labels":[
+    "Metrics",
+    "Non-Metric"
+  ],
+  "threshold":0.7
+}

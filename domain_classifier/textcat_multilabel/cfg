@@ -1,0 +1,7 @@
+{
+  "labels":[
+    "Domain-Specific",
+    "Non-Domain-Specific"
+  ],
+  "threshold":0.7
+}

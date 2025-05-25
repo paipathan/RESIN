@@ -1,0 +1,7 @@
+{
+  "labels":[
+    "Actionable",
+    "NonActionable"
+  ],
+  "threshold":0.7
+}
