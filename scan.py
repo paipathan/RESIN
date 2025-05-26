@@ -9,6 +9,7 @@ import fitz
 import re
 from pdf2image import convert_from_path
 
+resume_file_path = "temp/" + os.listdir('temp')[0]
 
 result = []
 
@@ -57,21 +58,6 @@ result_map = [(entry[0], entry[1:]) for entry in result]
 
 doc = fitz.open("temp/" + os.listdir('temp')[0])
 
-for page in doc:
-    blocks = page.get_text("blocks")
-    for block in blocks:
-        text = block[4]
-        rect = fitz.Rect(block[0], block[1], block[2], block[3])
-        for entry_text, labels in result_map:
-            if fuzzy_match(text, entry_text):
-                highlight_color = get_color(labels)
-                annot = page.add_rect_annot(rect)
-                annot.set_colors(stroke=None, fill=highlight_color)
-                annot.set_opacity(0.5)
-                annot.set_border(width=0)
-                annot.update()
-
-                break
 
 
 
@@ -79,8 +65,7 @@ poppler_path = r"C:\Users\Abhay Jani\Desktop\poppler-24.08.0\Library\bin"
 
 
 print(json.dumps(result))
-doc.save("temp/output_highlighted.pdf")
-images = convert_from_path("temp/output_highlighted.pdf", output_folder="temp", poppler_path=poppler_path)
+images = convert_from_path(resume_file_path, output_folder="temp", poppler_path=poppler_path)
 
 for i, img in enumerate(images):
     img.save(f"temp/page_{i + 1}.png")
