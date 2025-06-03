@@ -76,14 +76,13 @@ def upload_file():
         result = subprocess.run(
             [python_executable, 'scan.py'],
             capture_output=True,
-            text=True,
-            cwd="C:/Users/Abhay Jani/Desktop/RESIN"
+            text=True
         )
 
 
         output = result.stdout.strip()
         
-        image_dir = 'temp'  # Update path if different
+        image_dir = 'temp'
         image_files = [f for f in os.listdir(image_dir) if f.startswith("page_") and f.endswith(".png")]
         num_pages = len(image_files)
 
